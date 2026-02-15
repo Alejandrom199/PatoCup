@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "PatoCup.Domain/1.0.0": {
+        "runtime": {
+          "PatoCup.Domain.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "PatoCup.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

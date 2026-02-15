@@ -1,0 +1,6 @@
+@PatoCup.WebAPI_HostAddress = http://localhost:5190
+
+GET {{PatoCup.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

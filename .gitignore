@@ -1,0 +1,19 @@
+# Herramientas de Editor (.NET / VS)
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Backend (api)
+api/[Bb]in/
+api/[Oo]bj/
+api/appsettings.Development.json
+
+# Frontend (client)
+client/node_modules/
+client/dist/
+client/.angular/
+
+# Archivos del Sistema
+.DS_Store
+Thumbs.db
