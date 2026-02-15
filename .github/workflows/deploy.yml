@@ -1,0 +1,44 @@
+name: PatoCup CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Build & Push a Docker Hub
+    runs-on: ubuntu-latest
+
+    # Solo corre si el push es a la rama main
+    if: github.ref == 'refs/heads/main'
+
+    env:
+      APP_VERSION: 1.0.0
+
+    steps:
+    - name: Descargar código (Checkout)
+      uses: actions/checkout@v3
+
+    - name: Login en Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build & Push Backend (.NET)
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/pato-back:latest \
+                      -t ${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }} \
+                      ./api
+        docker push ${{ secrets.DOCKER_USERNAME }}/pato-back:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }}
+
+    - name: Build & Push Frontend (Angular)
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/pato-front:latest \
+                      -t ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }} \
+                      ./client
+        docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }}

@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: patocup_db
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=TuPasswordSeguro123!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - db_net
+
+  backend:
+    build: ./api
+    container_name: patocup_api
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=db;Database=PatoCupDb;User Id=sa;Password=TuPasswordSeguro123!;TrustServerCertificate=True;
+    networks:
+      - db_net
+      - public_net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    container_name: patocup_front
+    restart: always
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    networks:
+      - public_net
+
+networks:
+  db_net:
+    internal: true
+  public_net:
+    driver: bridge
+
+volumes:
+  mssql_data:
