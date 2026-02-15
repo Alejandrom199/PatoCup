@@ -11,7 +11,7 @@ jobs:
     name: Build & Push a Docker Hub
     runs-on: ubuntu-latest
 
-    # Solo corre si el push es a la rama main
+    # Solo corre si el push es a la rama main para evitar despliegues accidentales
     if: github.ref == 'refs/heads/main'
 
     env:
