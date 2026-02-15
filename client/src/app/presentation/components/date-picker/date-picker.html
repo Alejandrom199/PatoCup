@@ -1,0 +1,89 @@
+<div class="relative w-full">
+
+    <div (click)="toggle()"
+        class="cursor-pointer bg-white border border-slate-200 rounded-md pl-10 pr-3 text-slate-800 text-sm shadow-sm hover:border-orange-400 transition w-full flex items-center h-[42px]">
+        @if (displayValue) {
+        <span>{{ displayValue }}</span>
+        } @else {
+        <span class="text-slate-400">Selecciona una fecha</span>
+        }
+    </div>
+
+    @if (isOpen) {
+    <div class="absolute z-50 w-72 bg-white border border-slate-200 rounded-xl shadow-xl p-4 animate-in fade-in zoom-in"
+        [class]="placement === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'" (click)="$event.stopPropagation()">
+
+        <div class="flex items-center justify-between mb-3">
+            <button type="button" (click)="$event.stopPropagation(); prevPage()" 
+                [disabled]="isPrevPageDisabled()"
+                [class.opacity-30]="isPrevPageDisabled()"
+                class="text-slate-400 hover:text-orange-500 px-2 font-bold text-lg">‹</button>
+
+            <button type="button"
+                (click)="$event.stopPropagation(); currentView === 'days' ? switchToMonths() : (currentView === 'months' ? switchToYears() : null)"
+                class="font-bold text-slate-700 text-sm capitalize hover:text-orange-600 transition">
+
+                @switch (currentView) {
+                @case ('days') { {{ currentMonth | date:'MMMM yyyy' }} }
+                @case ('months') { {{ currentMonth | date:'yyyy' }} }
+                @case ('years') { {{ years[0] }} - {{ years[years.length-1] }} }
+                }
+            </button>
+
+            <button type="button" (click)="$event.stopPropagation(); nextPage()"
+                class="text-slate-400 hover:text-orange-500 px-2 font-bold text-lg">›</button>
+        </div>
+
+        @switch (currentView) {
+        @case ('days') {
+        <div class="grid grid-cols-7 gap-1 text-center">
+            @for (day of days; track $index) {
+            @if (day) {
+            <button type="button" (click)="!isDisabled(day) && selectDay(day)" [disabled]="isDisabled(day)"
+                class="text-sm w-8 h-8 rounded-full flex items-center justify-center transition mx-auto"
+                [class.opacity-30]="isDisabled(day)" [class.cursor-not-allowed]="isDisabled(day)"
+                [class.hover:bg-orange-100]="!isDisabled(day) && !(selectedDate && formatISO(day) === formatISO(selectedDate))"
+                [class.bg-orange-600]="selectedDate && formatISO(day) === formatISO(selectedDate)"
+                [class.text-white]="selectedDate && formatISO(day) === formatISO(selectedDate)">
+                {{ day.getDate() }}
+            </button>
+            } @else { <div class="w-8 h-8"></div> }
+            }
+        </div>
+        }
+        @case ('months') {
+        <div class="grid grid-cols-3 gap-2">
+            @for (m of monthNames; track $index) {
+            <button type="button" (click)="selectMonth($index)" 
+                [disabled]="isMonthDisabled($index)"
+                class="text-xs py-2 rounded-lg transition border border-transparent"
+                [class.opacity-30]="isMonthDisabled($index)"
+                [class.cursor-not-allowed]="isMonthDisabled($index)"
+                [class.hover:bg-orange-50]="!isMonthDisabled($index)"
+                [class.hover:text-orange-600]="!isMonthDisabled($index)"
+                [class.hover:border-orange-200]="!isMonthDisabled($index)"
+                [class.bg-orange-100]="currentMonth.getMonth() === $index && !isMonthDisabled($index)"
+                [class.text-orange-700]="currentMonth.getMonth() === $index && !isMonthDisabled($index)"
+                [class.font-bold]="currentMonth.getMonth() === $index && !isMonthDisabled($index)">
+                {{ m }}
+            </button>
+            }
+        </div>
+        }
+        @case ('years') {
+        <div class="grid grid-cols-4 gap-2">
+            @for (y of years; track y) {
+            <button type="button" (click)="!isYearDisabled(y) && selectYear(y)"
+                [disabled]="isYearDisabled(y)"
+                class="text-xs py-1.5 rounded-lg transition" [class.opacity-30]="isYearDisabled(y)"
+                [class.hover:bg-orange-50]="!isYearDisabled(y)" [class.bg-orange-600]="currentMonth.getFullYear() === y"
+                [class.text-white]="currentMonth.getFullYear() === y">
+                {{ y }}
+            </button>
+            }
+        </div>
+        }
+        }
+    </div>
+    }
+</div>

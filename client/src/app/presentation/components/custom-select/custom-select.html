@@ -1,0 +1,29 @@
+<button type="button" (click)="toggle()"
+    class="w-full flex items-center justify-between bg-transparent py-2.5 pl-10 pr-4 text-sm text-slate-800 outline-none relative z-20">
+
+    <span [class.text-slate-400]="!selectedValue" class="truncate">
+        {{ (options | filterByValue:selectedValue)?.label || placeholder }}
+    </span>
+
+    <svg class="w-4 h-4 text-slate-400 transition-transform duration-200" 
+         [class.rotate-180]="isOpen" 
+         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+</button>
+
+@if (isOpen) {
+  <div class="absolute z-[110] w-full mt-2 bg-white border border-slate-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <ul class="max-h-60 overflow-y-auto py-1">
+          @for (opt of options; track opt.value) {
+            <li (click)="selectOption(opt)"
+                class="px-4 py-2.5 text-sm cursor-pointer hover:bg-orange-50 hover:text-orange-600 transition-colors flex justify-between items-center"
+                [class.bg-orange-100]="selectedValue === opt.value" 
+                [class.text-orange-700]="selectedValue === opt.value">
+                {{ opt.label }}
+            </li>
+          }
+      </ul>
+  </div>
+  <div class="fixed inset-0 z-[105]" (click)="isOpen = false"></div>
+}

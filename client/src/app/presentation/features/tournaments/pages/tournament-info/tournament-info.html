@@ -1,0 +1,117 @@
+<div class="p-6 space-y-6 font-sans animate-in fade-in duration-500">
+
+  <div class="flex items-center gap-4">
+    <button routerLink="/competition/tournaments"
+      class="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-orange-600 hover:border-orange-200 transition-all cursor-pointer shadow-sm">
+      <ng-icon name="heroArrowLeft" class="text-xl"></ng-icon>
+    </button>
+
+    <div>
+      <h1 class="text-2xl font-black text-slate-800 tracking-tight uppercase">Detalle del Torneo</h1>
+      <p class="text-slate-500 text-sm font-medium">Información general y configuración</p>
+    </div>
+  </div>
+
+  @if (isLoading) {
+  <div class="animate-pulse space-y-4">
+    <div class="h-48 bg-slate-200 rounded-2xl w-full"></div>
+    <div class="h-10 bg-slate-200 rounded-xl w-1/3"></div>
+  </div>
+  } @else if (tournament) {
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+    <div class="p-8 border-b border-slate-100 bg-slate-50/50">
+      <div class="flex justify-between items-start">
+
+        <div>
+          <span
+            [class]="'inline-block px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest mb-3 border ' + getStateClass(tournament.tournamentStateName || tournament.stateName)">
+            {{ tournament.tournamentStateName || tournament.stateName }}
+          </span>
+
+          <div class="flex items-center gap-4">
+            <h2 class="text-3xl font-black text-slate-800 mb-2">{{ tournament.name }}</h2>
+            <button (click)="openEditModal(tournament)"
+              class="p-2 text-slate-400 hover:text-blue-600 rounded-lg cursor-pointer">
+              <ng-icon name="heroPencil"></ng-icon>
+            </button>
+          </div>
+          <p class="text-slate-500 text-sm max-w-2xl">{{ tournament.description }}</p>
+        </div>
+
+        <div class="flex flex-col gap-3 min-w-[140px]"> <button (click)="markAsPublic()"
+            [class]="tournament.isPublic ? 'bg-orange-600 text-white shadow-orange-900/40' : 'bg-slate-100 text-slate-400 hover:text-orange-600'"
+            class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all cursor-pointer border border-transparent shadow-sm w-full">
+            <ng-icon [name]="tournament.isPublic ? 'heroCheckBadge' : 'heroGlobeAlt'" class="text-lg"></ng-icon>
+            {{ tournament.isPublic ? 'Público' : 'Publicar' }}
+          </button>
+
+          <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">ID Torneo</p>
+            <span class="text-xl font-black text-slate-800 leading-none">#{{ tournament.id }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      <div class="flex items-start gap-4">
+        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+          <ng-icon name="heroCalendar" class="text-2xl"></ng-icon>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Duración</p>
+          <p class="font-bold text-slate-700 text-sm">{{ tournament.startDate | date:'dd MMM yyyy' }}</p>
+          <p class="font-bold text-slate-700 text-sm">Hasta {{ tournament.endDate | date:'dd MMM yyyy' }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-4">
+        <div class="p-3 bg-yellow-50 text-yellow-600 rounded-xl">
+          <ng-icon name="heroTrophy" class="text-2xl"></ng-icon>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Estado Registro</p>
+          <p class="font-bold text-slate-700 text-sm">{{ tournament.stateName }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  }
+  @else {
+  <div class="p-10 text-center text-slate-400">
+    <p class="font-bold">No se encontró información del torneo.</p>
+  </div>
+  }
+
+  @if (tournament) {
+  <div class="mt-8 border-t border-slate-200 pt-8">
+    <app-phases-manager [tournamentId]="tournament.id"></app-phases-manager>
+  </div>
+  }
+
+  @if (showCreateModal) {
+  <div
+    class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-300">
+    <div class="relative w-full max-w-lg animate-in zoom-in duration-200">
+      <button (click)="showCreateModal = false"
+        class="absolute -top-10 right-16 text-white font-bold text-sm flex items-center gap-2 cursor-pointer hover:text-orange-400 transition-colors">
+
+        Cerrar
+        <ng-icon name="heroArrowRightOnRectangle" class="rotate-180 text-xl scale-125">
+        </ng-icon>
+      </button>
+
+      <app-dynamic-form class="w-full flex justify-center" title="Editar Torneo"
+        subTitle="Completa la información para actualizar un torneo" submitLabel="Actualizar"
+        [fields]="tournamentFields" maxWidth="max-w-md" headerBackground="bg-slate-50" (close)="showCreateModal = false"
+        (formSubmit)="handleFormSubmit($event)"></app-dynamic-form>
+    </div>
+  </div>
+  }
+
+</div>

@@ -1,0 +1,110 @@
+<div class="p-6 space-y-8 animate-in fade-in duration-700">
+
+    <header class="relative overflow-hidden bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+
+                @if (user$ | async; as user) {
+                <h1 class="text-3xl md:text-4xl font-black tracking-tight mb-2 flex items-center gap-2">
+                    ¡Qué bueno verte,
+                    <span class="text-orange-500">{{ user.username | uppercase }}</span>!
+                    <ng-icon name="heroHandRaised" class="text-orange-500 text-4xl"></ng-icon>
+                </h1>
+
+                }
+                <p class="text-slate-400 font-medium max-w-md">
+                    Tienes el control total de PatoCup. Aquí tienes un resumen de lo que está pasando.
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <a routerLink="/competition/tournaments"
+                    class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all active:scale-95 shadow-lg shadow-orange-900/20">
+                    Gestionar Torneos
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-orange-600/10 rounded-full blur-3xl"></div>
+        <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl"></div>
+    </header>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="p-3 bg-slate-100 rounded-2xl text-slate-600 group-hover:bg-slate-900 group-hover:text-white transition-colors">
+                    <ng-icon name="heroTrophy" class="text-2xl"></ng-icon>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Torneos</span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-800">{{ stats.total }}</h3>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Registrados en total</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="p-3 bg-orange-100 rounded-2xl text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                    <ng-icon name="heroSquares2x2" class="text-2xl"></ng-icon>
+                </div>
+                <span class="text-[10px] font-black text-orange-500 uppercase tracking-widest">En Vivo</span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-800">{{ stats.live }}</h3>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Competencias activas</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="p-3 bg-blue-100 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <ng-icon name="heroCalendar" class="text-2xl"></ng-icon>
+                </div>
+                <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Planificación</span>
+            </div>
+            <h3 class="text-3xl font-black text-slate-800">{{ stats.drafts }}</h3>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Torneos en borrador</p>
+        </div>
+
+        <a routerLink="/competition/players"
+            class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-orange-500 transition-all group cursor-pointer">
+            <div class="flex items-center justify-between mb-4">
+                <div
+                    class="p-3 bg-emerald-100 rounded-2xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <ng-icon name="heroUsers" class="text-2xl"></ng-icon>
+                </div>
+                <ng-icon name="heroArrowRight"
+                    class="text-slate-300 group-hover:text-orange-500 transition-all group-hover:translate-x-1"></ng-icon>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 group-hover:text-orange-600 transition-colors">Validar
+                Jugadores</h3>
+            <p class="text-xs text-slate-500 mt-1 font-medium">Revisar nuevas solicitudes</p>
+        </a>
+    </div>
+
+    <!-- <div class="bg-slate-50 border border-slate-200 rounded-[2.5rem] p-8">
+    <div class="flex items-center gap-3 mb-6">
+      <ng-icon name="heroChartBar" class="text-2xl text-slate-400"></ng-icon>
+      <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight">Acciones Sugeridas</h2>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+        <div class="w-2 h-10 bg-orange-500 rounded-full"></div>
+        <div>
+          <p class="text-sm font-bold text-slate-800">Finalizar Borradores</p>
+          <p class="text-xs text-slate-500">Tienes {{ stats.drafts }} torneos sin publicar.</p>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+        <div class="w-2 h-10 bg-blue-500 rounded-full"></div>
+        <div>
+          <p class="text-sm font-bold text-slate-800">Ver Calendario</p>
+          <p class="text-xs text-slate-500">Próximos encuentros programados para esta semana.</p>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+</div>

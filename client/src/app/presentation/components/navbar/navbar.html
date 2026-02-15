@@ -1,0 +1,91 @@
+<nav class="bg-white border-b border-slate-200 fixed top-0 w-full z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+
+      <div class="flex">
+        <div
+          class="flex-shrink-0 flex items-center cursor-pointer"
+          routerLink="/home">
+          <div class="h-10 w-32 bg-pato-cup-logo bg-contain bg-left bg-no-repeat"></div>
+        </div>
+
+        <div class="hidden sm:ml-8 sm:flex sm:space-x-6">
+          @for (group of (menuGroups$ | async); track group.id) {
+          <div
+            class="relative group inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-orange-300 transition-all">
+
+            @if (group.options.length === 1) {
+              <a
+                [routerLink]="group.options[0].route"
+                routerLinkActive="text-orange-600 border-orange-300"
+                class="flex items-center text-sm font-semibold text-slate-500 hover:text-slate-700 cursor-pointer">
+                <ng-icon [name]="group.icon" class="mr-1.5 text-lg"></ng-icon>
+                {{ group.name }}
+              </a>
+            } @else {
+              <div
+                class="flex items-center text-sm font-semibold text-slate-500 group-hover:text-slate-700 cursor-pointer">
+                <ng-icon [name]="group.icon" class="mr-1.5 text-lg"></ng-icon>
+                {{ group.name }}
+                <ng-icon name="heroChevronDown" class="ml-1 text-[10px] opacity-50"></ng-icon>
+              </div>
+            }
+
+            @if (group.options.length > 1) {
+            <div
+              class="absolute left-0 top-full hidden group-hover:block w-56 bg-white border border-slate-200 rounded-b-2xl shadow-2xl animate-in fade-in slide-in-from-top-1 duration-200 z-50">
+              <div class="py-3 px-2 space-y-1">
+                @for (opt of group.options; track opt.name) {
+                <a
+                  [routerLink]="opt.route"
+                  routerLinkActive="bg-orange-50 text-orange-600"
+                  class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-orange-600 rounded-xl transition-colors">
+                  <ng-icon [name]="opt.icon" class="text-xl opacity-70"></ng-icon>
+                  {{ opt.name }}
+                </a>
+                }
+              </div>
+            </div>
+            }
+
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="flex items-center">
+        @if (auth.user$ | async; as user) {
+        <div class="flex items-center gap-4">
+
+          <div class="text-right hidden md:block leading-tight">
+            <p class="text-sm font-bold text-slate-700">{{ user.username }}</p>
+            <span
+              class="text-[10px] uppercase tracking-wider inline-flex items-center px-2 py-0.5 rounded-full font-bold bg-orange-100 text-orange-700 border border-orange-200">
+              {{ user.role }}
+            </span>
+          </div>
+
+          <div
+            class="h-10 w-10 rounded-full border-2 border-orange-500 overflow-hidden bg-slate-100 flex items-center justify-center">
+            @if (user.photoUrl) {
+              <img [src]="user.photoUrl" class="h-full w-full object-cover">
+            } 
+            @else {
+              <span class="text-orange-600 font-black text-lg">
+                {{ user.username.charAt(0).toUpperCase() }}
+              </span>
+            }
+          </div>
+
+          <button
+            (click)="logout()"
+            class="p-2 text-slate-400 hover:text-red-600 transition-colors cursor-pointer">
+            <ng-icon name="heroArrowRightOnRectangle" class="text-2xl"></ng-icon>
+          </button>
+        </div>
+        }
+      </div>
+
+    </div>
+  </div>
+</nav>

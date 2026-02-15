@@ -1,0 +1,108 @@
+<div class="space-y-4">
+
+    <div class="flex justify-end mb-2">
+        <button (click)="openCreateModal()"
+            class="text-xs font-bold p-2 text-slate-500 hover:text-orange-600 hover:bg-orange-50 flex items-center gap-1 transition-colors cursor-pointer">
+            <ng-icon name="heroPlus"></ng-icon>
+            Programar Partida
+        </button>
+    </div>
+
+    @if (isLoading && !showCreateModal) {
+    <div class="animate-pulse space-y-3">
+        <div class="h-24 bg-slate-100 rounded-xl w-full"></div>
+        <div class="h-24 bg-slate-100 rounded-xl w-full"></div>
+    </div>
+    }
+
+    @if (!isLoading && matches.length === 0) {
+    <div class="text-center py-10 bg-slate-50/50 rounded-xl border-2 border-dashed border-slate-200">
+        <p class="text-xs text-slate-400 font-medium italic">No hay partidas programadas en esta fase.</p>
+    </div>
+    }
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @for (match of matches; track match.id) {
+        <div class="group relative bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+            
+            <div class="absolute top-2 right-2 flex gap-1 z-10" (click)="$event.stopPropagation()">
+                <button (click)="openResultModal(match)"
+                    title="Registrar Resultado"
+                    class="p-1.5 text-slate-300 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors cursor-pointer">
+                    <ng-icon name="heroTrophy" class="text-sm"></ng-icon>
+                </button>
+                <button (click)="openEditModal(match)"
+                    title="Editar"
+                    class="p-1.5 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+                    <ng-icon name="heroPencil" class="text-sm"></ng-icon>
+                </button>
+                <button (click)="askDeletePhase(match)"
+                    title="Eliminar"
+                    class="p-1.5 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                    <ng-icon name="heroTrash" class="text-sm"></ng-icon>
+                </button>
+            </div>
+
+            <div class="flex items-center justify-between mt-3 gap-2">
+                <div class="flex-1 text-right">
+                    <span class="block font-bold text-slate-700 text-sm truncate">{{ match.player1Name }}</span>
+                    @if (match.scorePlayer1 !== undefined) {
+                        <span class="text-xl font-black text-slate-900 leading-none">{{ match.scorePlayer1 }}</span>
+                    }
+                </div>
+
+                <div class="px-4 text-center">
+                    <div class="flex flex-col items-center">
+                        <span class="text-[10px] font-black text-slate-400 uppercase bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+                            VS
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex-1 text-left">
+                    <span class="block font-bold text-slate-700 text-sm truncate">{{ match.player2Name || 'Esperando...' }}</span>
+                    @if (match.scorePlayer2 !== undefined) {
+                        <span class="text-xl font-black text-slate-900 leading-none">{{ match.scorePlayer2 }}</span>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+
+    @if (showCreateModal) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-300">
+        <div class="relative w-full max-w-lg animate-in zoom-in duration-200">
+            <button (click)="closeModal()"
+                class="absolute -top-10 right-0 text-white font-bold text-sm flex items-center gap-2 cursor-pointer hover:text-orange-400 transition-colors">
+                Cerrar
+                <ng-icon name="heroArrowRightOnRectangle" class="rotate-180 text-xl scale-125"></ng-icon>
+            </button>
+
+            <app-dynamic-form 
+                [title]="isRegisteringResult ? 'Registrar Resultado' : (isEditing ? 'Editar Partida' : 'Programar Partida')"
+                [subTitle]="isRegisteringResult ? 'Ingresa el marcador final' : (isEditing ? 'Actualiza los detalles' : 'Define los rivales')" 
+                [submitLabel]="isRegisteringResult ? 'Confirmar Resultado' : (isEditing ? 'Actualizar' : 'Guardar')"
+                [fields]="matchFields"
+                [isLoading]="isLoading" 
+                headerBackground="bg-slate-50"
+                [isOpen]="showCreateModal"
+                (formSubmit)="handleFormSubmit($event)"
+                (close)="closeModal()">
+            </app-dynamic-form>
+        </div>
+    </div>
+    }
+
+    <app-status-modal 
+        [isOpen]="modalConfig.isOpen" 
+        [type]="modalConfig.type" 
+        [title]="modalConfig.title"
+        [message]="modalConfig.message" 
+        [icon]="modalConfig.icon" 
+        confirmColor="red" 
+        confirmText="Sí, Eliminar"
+        (close)="closeStatusModal()" 
+        (finished)="closeStatusModal()"  (confirm)="onModalConfirm()">
+    </app-status-modal>
+</div>

@@ -1,0 +1,46 @@
+<div class="relative w-full h-screen overflow-hidden bg-slate-900 font-sans">
+  <video #video autoplay loop playsinline class="absolute inset-0 w-full h-full object-cover z-0 opacity-90">
+    <source src="/movies/pato_video.mp4" type="video/mp4">
+  </video>
+  <div class="absolute inset-0 bg-black/60 z-10 pointer-events-none"></div>
+
+  <div class="relative z-20 w-full h-full flex flex-col pointer-events-auto">
+    <header class="w-full flex justify-between items-start p-4 sm:p-6">
+      
+      <button (click)="goToRequest()" 
+              class="group flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-orange-600 text-white font-bold tracking-wide shadow-lg shadow-orange-900/20 hover:bg-orange-500 hover:scale-105 transition-all cursor-pointer relative z-30">
+        <ng-icon name="heroUserPlus" class="text-xl group-hover:-rotate-12 transition-transform"></ng-icon>
+        <span class="hidden sm:inline">Solicitar Ingreso</span>
+        <span class="sm:hidden">Solicitar</span>
+      </button>
+
+      <div class="flex gap-3 items-center">
+        <button (click)="openBrackets()" 
+              class="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-800/80 backdrop-blur-md text-white border border-slate-700 hover:bg-orange-600 hover:border-orange-500 hover:scale-105 transition-all cursor-pointer relative z-30">
+          <ng-icon name="heroTrophy" class="text-orange-500 group-hover:text-white text-xl"></ng-icon>
+          <span class="hidden sm:inline font-bold uppercase tracking-tighter">Ver Torneo</span>
+        </button>
+
+        <button (click)="goToLogin()" 
+                class="relative z-30 p-2 text-white/10 hover:text-orange-500 transition-colors cursor-pointer" 
+                title="Admin Access">
+          <ng-icon name="heroLockClosed" class="text-xl"></ng-icon>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center text-center px-4">
+      <div class="h-64 w-64 sm:h-80 sm:w-80 lg:h-96 lg:w-96 flex items-center justify-center">
+        <div class="h-full w-full bg-pato-cup-logo bg-contain bg-center bg-no-repeat drop-shadow-2xl filter hover:scale-110 transition-transform duration-200"></div>
+      </div>
+      <h1 class="mt-8 text-white text-xl sm:text-2xl lg:text-3xl font-bold uppercase tracking-widest drop-shadow-md max-w-2xl">
+        Sé parte de la PatoCup
+        <span class="block text-orange-500 mt-2 font-black text-2xl sm:text-3xl lg:text-4xl">La gloria te espera</span>
+      </h1>
+    </main>
+  </div>
+
+  @if (showBrackets) {
+    <app-tournament-bracket (close)="closeBrackets()"></app-tournament-bracket>
+  }
+</div>

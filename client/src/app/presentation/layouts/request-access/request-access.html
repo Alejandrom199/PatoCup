@@ -1,0 +1,39 @@
+<div
+  class="min-h-screen flex items-center justify-center bg-white py-6 sm:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+
+  <button (click)="goBack()"
+    class="absolute top-6 left-6 flex items-center gap-2 text-slate-400 hover:text-slate-800 transition-colors z-30 cursor-pointer">
+    <ng-icon name="heroArrowLeft" class="text-xl group-hover:-translate-x-1 transition-transform"></ng-icon>
+    
+    <span class="text-sm font-bold uppercase tracking-wider">Volver</span>
+  </button>
+
+  <div
+    class="absolute bottom-0 -left-40 lg:-left-60 w-full lg:w-2/3 h-1/3 lg:h-2/1 bg-pato-arma bg-contain bg-no-repeat bg-left-bottom z-0 opacity-80 lg:opacity-90 pointer-events-none">
+  </div>
+
+  <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+    <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-orange-600/10 rounded-full blur-[100px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px]"></div>
+  </div>
+
+  <div class="w-full max-w-md z-10 relative">
+
+    <div class="h-32 sm:h-48 w-full bg-pato-cup-logo bg-contain bg-center bg-no-repeat mb-6"></div>
+
+    <app-dynamic-form title="Solicitar Jugar" subTitle="Únete a la PatoCup" submitLabel="Enviar Solicitud"
+      [glass]="true" [fields]="formFields" [isLoading]="isLoading" [errorMessage]="errorMessage"
+      (formSubmit)="handleRequest($event)"></app-dynamic-form>
+
+  </div>
+
+</div>
+
+<app-status-modal
+  [isOpen]="showSuccessModal"
+  [type]="'status'"
+  [succeeded]="true"
+  [title]="'¡Solicitud Enviada!'"
+  [message]="'Tu registro ha sido recibido. El administrador revisará tu perfil pronto.'"
+  (finished)="onSuccessFinish()">
+</app-status-modal>

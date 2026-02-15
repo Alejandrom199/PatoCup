@@ -1,0 +1,25 @@
+<div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+  <app-dynamic-form 
+    title="Inicio de Sesión" 
+    subTitle="Ingresa tus credenciales de acceso" 
+    submitLabel="Iniciar Sesión"
+    [fields]="loginFields" 
+    [glass]="true" 
+    [isLoading]="isLoading" 
+    [errorMessage]="errorMessage"
+    (formSubmit)="handleLogin($event)">
+  </app-dynamic-form>
+
+
+  <div class="text-center mt-6">
+    <p class="text-sm text-slate-500">
+      ¿Problemas para acceder?
+      <span class="font-semibold text-orange-600">
+        Contacta a soporte
+      </span>
+    </p>
+  </div>
+
+
+</div>

@@ -1,0 +1,13 @@
+<router-outlet></router-outlet>
+
+@if (statusService.modalState$ | async; as state) {
+  @if (state.isOpen) {
+    <app-status-modal 
+      [isOpen]="state.isOpen" 
+      [succeeded]="state.succeeded" 
+      [message]="state.message"
+      (close)="statusService.close()" 
+      (finished)="statusService.close()">
+    </app-status-modal>
+  }
+}

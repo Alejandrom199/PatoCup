@@ -1,0 +1,128 @@
+<div class="p-6 space-y-6 font-sans animate-in fade-in duration-500">
+
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-black text-slate-800 tracking-tight uppercase mb-2">Administración de Jugadores</h1>
+      <p class="text-slate-500 text-sm font-medium">Comunidad y control de acceso de PatoCup</p>
+    </div>
+    
+    <div class="flex bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
+      <button (click)="setMode(ViewMode.Active)"
+        [class]="viewMode === ViewMode.Active ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500'"
+        class="px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer">
+        Comunidad
+      </button>
+      <button (click)="setMode(ViewMode.Pending)"
+        [class]="viewMode === ViewMode.Pending ? 'bg-orange-600 text-white shadow-md' : 'text-slate-500'"
+        class="px-6 py-2 rounded-xl text-xs font-bold uppercase transition-all cursor-pointer relative">
+        Solicitudes
+        @if (pendingCount > 0) {
+          <span class="absolute -top-2 -right-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white shadow-sm animate-bounce">
+            {{ pendingCount }}
+          </span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5">
+      <div class="p-3 bg-slate-100 rounded-xl text-slate-500"><ng-icon name="heroUsers" class="text-2xl"></ng-icon></div>
+      <div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total</p>
+        <h3 class="text-2xl font-black text-slate-800">{{ totalPlayers }}</h3>
+      </div>
+    </div>
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5">
+      <div class="p-3 bg-orange-100 rounded-xl text-orange-600"><ng-icon name="heroClock" class="text-2xl"></ng-icon></div>
+      <div>
+        <p class="text-xs font-bold text-orange-500 uppercase tracking-widest">Pendientes</p>
+        <h3 class="text-2xl font-black text-orange-600">{{ pendingCount }}</h3>
+      </div>
+    </div>
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5">
+      <div class="p-3 bg-slate-100 rounded-xl text-slate-500"><ng-icon name="heroCheckBadge" class="text-2xl"></ng-icon></div>
+      <div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Activos</p>
+        <h3 class="text-2xl font-black text-slate-800">{{ activeCount }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    
+    <div class="p-6 bg-slate-50/50 border-b border-slate-200">
+      <div class="flex items-end gap-5">
+        <div class="space-y-1.5 flex-1 max-w-sm">
+          <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Buscar Jugador</label>
+          <input type="text" placeholder="Nickname o GameID..."
+            class="w-full bg-white border border-slate-300 text-sm rounded-xl py-2 px-4 outline-none focus:border-orange-500 transition-all">
+        </div>
+        <button class="bg-slate-900 hover:bg-black text-white text-[10px] font-bold uppercase py-2.5 px-6 rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer">
+          <ng-icon name="heroFunnel" class="text-lg"></ng-icon> Filtrar
+        </button>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest">
+          <tr>
+            <th class="px-6 py-4 border-b border-slate-100">Jugador</th>
+            <th class="px-6 py-4 border-b border-slate-100 text-center">IP Registro</th>
+            <th class="px-6 py-4 border-b border-slate-100 text-center">Estado</th>
+            <th class="px-6 py-4 border-b border-slate-100 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          @for (p of filteredPlayers; track p.id) {
+          <tr class="hover:bg-slate-50/50 transition-colors">
+            <td class="px-6 py-3">
+              <span class="font-bold text-slate-800 text-sm block">{{ p.nickname }}</span>
+              <span class="text-[10px] text-orange-600 font-black uppercase tracking-widest">UID: {{ p.gameId || 'SIN ASIGNAR' }}</span>
+            </td>
+
+            <td class="px-6 py-4 text-center">
+              <div class="inline-flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 transition-all hover:border-slate-200">
+                <div class="flex items-center gap-2">
+                  <ng-icon name="heroComputerDesktop" class="text-slate-400 text-[10px]"></ng-icon>
+                  <span class="text-[12px] font-mono text-slate-500 min-w-[85px] text-center">
+                    {{ visibleIps.has(p.id) ? p.registrationIp : '•••.•••.•••.•••' }}
+                  </span>
+                </div>
+                <button (click)="toggleIpVisibility(p.id)"
+                  class="text-slate-400 hover:text-orange-600 transition-colors cursor-pointer focus:outline-none flex items-center"
+                  [title]="visibleIps.has(p.id) ? 'Ocultar IP' : 'Mostrar IP'">
+                  <ng-icon [name]="visibleIps.has(p.id) ? 'heroEyeSlash' : 'heroEye'" class="text-sm"></ng-icon>
+                </button>
+              </div>
+            </td>
+
+            <td class="px-6 py-3 text-center">
+              <span [class]="'px-3 py-1 rounded-lg text-[9px] font-black uppercase border ' + getPlayerStatusClass(p.playerStateName)">
+                {{ p.playerStateName }}
+              </span>
+            </td>
+
+            <td class="px-6 py-3 text-right">
+              <div class="flex items-center justify-end gap-2">
+                @if (viewMode === ViewMode.Pending) {
+                  <button (click)="onProcessRequest(p, true)" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all hover:scale-110 cursor-pointer" title="Aceptar Jugador">
+                    <ng-icon name="heroCheckCircle" class="text-xl"></ng-icon>
+                  </button>
+                  <button (click)="onProcessRequest(p, false)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all hover:scale-110 cursor-pointer" title="Rechazar">
+                    <ng-icon name="heroXCircle" class="text-xl"></ng-icon>
+                  </button>
+                } @else {
+                  <button (click)="openEditModal(p)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all hover:scale-110 cursor-pointer"><ng-icon name="heroPencilSquare" class="text-xl"></ng-icon></button>
+                  <button (click)="askDelete(p)" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all hover:scale-110 cursor-pointer"><ng-icon name="heroTrash" class="text-xl"></ng-icon></button>
+                }
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

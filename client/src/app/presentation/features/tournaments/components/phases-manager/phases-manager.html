@@ -1,0 +1,89 @@
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h3 class="text-lg font-black text-slate-800 tracking-tight">Estructura del Torneo</h3>
+        <button (click)="openCreateModal()"
+            class="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-xl transition-all shadow-sm cursor-pointer group">
+            <ng-icon name="heroPlus" class="text-lg group-hover:rotate-90 transition-transform"></ng-icon> 
+            Agregar Fase
+        </button>
+    </div>
+
+    <div class="space-y-3">
+        @for (phase of phases; track phase.id) {
+        <div class="bg-white rounded-xl border border-slate-200 overflow-visible transition-all shadow-sm hover:border-orange-200"
+             [class.opacity-60]="phase.sequence === -1">
+            <div class="flex items-center justify-between p-4 cursor-pointer select-none" (click)="toggleExpand(phase)">
+                <div class="flex items-center gap-4">
+                    <ng-icon name="heroChevronUp" class="text-slate-400 text-xl transition-transform"
+                        [class.rotate-180]="!phase.isExpanded"></ng-icon>
+                    
+                    <div class="flex flex-col items-start">
+                        <h4 class="font-bold text-slate-800 uppercase tracking-wider text-sm">{{ phase.name }}</h4>
+                        
+                        <div class="flex gap-1.5 mt-1">
+                            <span [class]="'inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ' + getStateClass(phase.phaseStateName)">
+                                {{ phase.phaseStateName }}
+                            </span>
+
+                            <span [class]="'inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ' + getStateClass(phase.stateName)">
+                                {{ phase.stateName }}
+                            </span>
+
+                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase border transition-all"
+                                  [class]="phase.sequence === -1 
+                                    ? 'bg-slate-100 text-slate-400 border-slate-200' 
+                                    : 'bg-orange-50 text-orange-600 border-orange-200 shadow-sm shadow-orange-100'">
+                                {{ phase.sequence === -1 ? 'Oculto' : 'Orden: #' + phase.sequence }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-1" (click)="$event.stopPropagation()">
+                    <button (click)="setAsFinal(phase)"
+                        class="p-2 transition-all cursor-pointer flex items-center justify-center"
+                        [class]="phase.isFinal ? 'text-orange-500 scale-125' : 'text-slate-300 hover:text-orange-400'"
+                        title="Marcar como Gran Final">
+                        
+                        <ng-icon name="heroTrophy" class="text-xl"></ng-icon>
+                    </button>
+
+                    <button (click)="openEditModal(phase)" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+                        <ng-icon name="heroPencil"></ng-icon>
+                    </button>
+                    <button (click)="askDeletePhase(phase)" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                        <ng-icon name="heroTrash"></ng-icon>
+                    </button>
+                </div>
+            </div>
+
+            @if (phase.isExpanded) {
+            <div class="border-t border-slate-100 bg-slate-50/50 p-4 animate-in slide-in-from-top-2 duration-200 overflow-visible">
+                <app-match-manager [phaseId]="phase.id"></app-match-manager>
+            </div>
+            }
+        </div>
+        }
+    </div>
+
+    @if (showCreateModal) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-300">
+        <div class="relative w-full max-w-lg animate-in zoom-in duration-200">
+            <button (click)="showCreateModal = false"
+                class="absolute -top-10 right-16 text-white font-bold text-sm flex items-center gap-2 cursor-pointer hover:text-orange-400 transition-colors">
+                Cerrar <ng-icon name="heroArrowRightOnRectangle" class="rotate-180 text-xl scale-125"></ng-icon>
+            </button>
+            <app-dynamic-form class="w-full flex justify-center" [title]="isEditing ? 'Editar Fase' : 'Nueva Fase'"
+                [subTitle]="isEditing ? 'Cambia el nombre de la etapa' : 'Configura una nueva etapa de competencia'"
+                [submitLabel]="isEditing ? 'Actualizar' : 'Guardar Fase'" [fields]="phaseFields" [isLoading]="isLoading"
+                maxWidth="max-w-md" headerBackground="bg-slate-50" (formSubmit)="handleFormSubmit($event)"
+                (close)="showCreateModal = false"></app-dynamic-form>
+        </div>
+    </div>
+    }
+
+    <app-status-modal [isOpen]="modalConfig.isOpen" [type]="modalConfig.type" [title]="modalConfig.title"
+        [message]="modalConfig.message" [icon]="modalConfig.icon" confirmColor="red" confirmText="Sí, Eliminar"
+        (close)="closeStatusModal()" (confirm)="onModalConfirm()">
+    </app-status-modal>
+</div>

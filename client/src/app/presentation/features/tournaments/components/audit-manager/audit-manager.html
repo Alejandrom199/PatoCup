@@ -1,0 +1,142 @@
+<div class="p-6 space-y-6 font-sans animate-in fade-in duration-500">
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight uppercase mb-2">Bitácora de Auditoría</h1>
+            <p class="text-slate-500 text-sm font-medium">Control y seguimiento de seguridad de PatoCup</p>
+        </div>
+        <div class="p-3 bg-slate-900 rounded-2xl text-white shadow-lg hidden md:block">
+            <ng-icon name="heroShieldCheck" class="text-2xl"></ng-icon>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+        <div class="p-6 bg-slate-50/50 border-b border-slate-200">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-end">
+
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Usuario</label>
+                    <input #fUser type="text" placeholder="Username..."
+                        class="w-full bg-white border border-slate-300 text-sm rounded-xl py-2 px-4 outline-none focus:border-orange-500 transition-all">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Tipo de Acción</label>
+                    <select #fAction
+                        class="w-full bg-white border border-slate-300 text-sm rounded-xl py-2 px-3 outline-none cursor-pointer focus:border-orange-500 transition-all">
+                        <option value="">Todas las acciones</option>
+                        <option value="CREATE">Creación (CREATE)</option>
+                        <option value="UPDATE">Actualización (UPDATE)</option>
+                        <option value="DELETE">Eliminación (DELETE)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Fecha</label>
+                    <input #fDate type="date"
+                        class="w-full bg-white border border-slate-300 text-sm rounded-xl py-2 px-3 outline-none focus:border-orange-500">
+                </div>
+
+                <button (click)="applyFilters()"
+                    class="bg-slate-900 hover:bg-black text-white text-[10px] font-bold uppercase py-2.5 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                    <ng-icon name="heroFunnel" class="text-lg"></ng-icon>
+                    Filtrar Bitácora
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest">
+                    <tr>
+                        <th class="px-6 py-4 border-b border-slate-100">Fecha y Hora</th>
+                        <th class="px-6 py-4 border-b border-slate-100">Usuario Responsable</th>
+                        <th class="px-6 py-4 border-b border-slate-100 text-center">Acción Ejecutada</th>
+                        <th class="px-6 py-4 border-b border-slate-100 text-center">Descripción del Movimiento</th>
+                        <th class="px-6 py-4 border-b border-slate-100 text-right">Dirección IP</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    @for (log of logs; track log.id) {
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2 text-slate-700 font-bold text-xs">
+                                <ng-icon name="heroClock" class="text-slate-400"></ng-icon>
+                                {{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center border border-orange-100">
+                                    <span class="text-[10px] font-black text-orange-600">
+                                        {{ (log.username || 'S').charAt(0).toUpperCase() }}
+                                    </span>
+                                </div>
+                                <span class="text-sm font-bold text-slate-800">{{ log.username || 'Sistema' }}</span>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                [class]="'px-3 py-1 rounded-lg text-[9px] font-black uppercase border ' + getActionClass(log.actionType)">
+                                {{ log.actionType }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            <button (click)="openDetail(log)"
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 text-slate-500 hover:bg-slate-900 hover:text-white transition-all active:scale-95 cursor-pointer border border-slate-200 hover:border-slate-800 shadow-sm group">
+                                <ng-icon name="heroInformationCircle"
+                                    class="text-lg group-hover:rotate-12 transition-transform"></ng-icon>
+                                <span class="text-[10px] font-bold uppercase tracking-wider">Detalles</span>
+                            </button>
+                        </td>
+
+                        <td class="px-6 py-4 text-right">
+                            <div
+                                class="inline-flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 transition-all">
+                                <div class="flex items-center gap-2">
+                                    <ng-icon name="heroComputerDesktop" class="text-slate-400 text-[10px]"></ng-icon>
+                                    <span class="text-[12px] font-mono text-slate-500 min-w-[85px] text-center">
+                                        {{ visibleIps.has(log.id) ? log.ipAddress : '•••.•••.•••.•••' }}
+                                    </span>
+                                </div>
+                                <button (click)="toggleIpVisibility(log.id)"
+                                    class="text-slate-400 hover:text-orange-600 transition-colors cursor-pointer">
+                                    <ng-icon [name]="visibleIps.has(log.id) ? 'heroEyeSlash' : 'heroEye'"
+                                        class="text-sm"></ng-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-4 bg-slate-50/50 border-t border-slate-100">
+            <app-pagination [currentPage]="currentPage" [pageSize]="pageSize" [totalItems]="totalLogs"
+                (pageChange)="onPageChange($event)">
+            </app-pagination>
+        </div>
+    </div>
+</div>
+
+<app-status-modal 
+    [showCancelButton]="false" 
+    [isJson]="true" 
+    [isOpen]="showDetailModal" 
+    [type]="'confirmation'" 
+    [title]="'Detalle de Actividad'"
+    [message]="selectedLog?.message || ''" 
+    [icon]="'heroShieldCheck'" 
+    [confirmColor]="'blue'"
+    [confirmText]="'Entendido'" 
+    [cancelText]="'Cerrar'" 
+    [maxWidth]="'max-w-lg'"
+    (close)="showDetailModal = false"
+    (confirm)="showDetailModal = false">
+</app-status-modal>

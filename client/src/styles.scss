@@ -1,0 +1,36 @@
+@use "tailwindcss";
+
+@theme {
+  --background-image-pato-trofeo: url('/images/pato_trofeo.png');
+  --background-image-pato-corazon: url('/images/pato_corazon.png');
+  --background-image-pato-arma: url('/images/pato_arma.png');
+  --background-image-pato-cup-logo: url('/images/pato_cup_logo.png');
+  --background-image-pato-secure: url('/images/pato_secure.png');
+
+  
+  /* Colores */
+  --color-pato-brand: #4f46e5;
+  
+}
+
+/* Tus estilos globales adicionales */
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-800 font-sans antialiased;
+}
+
+/* Clases utilitarias personalizadas */
+.btn-primary {
+  @apply bg-pato-brand text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pato-brand focus:border-pato-brand transition-all;
+}
+
+.card {
+  @apply bg-white p-8 rounded-xl shadow-lg border border-slate-100;
+}
