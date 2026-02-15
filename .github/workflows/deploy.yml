@@ -11,7 +11,7 @@ jobs:
     name: Build & Push a Docker Hub
     runs-on: ubuntu-latest
 
-    # Solo corre si el push es a la rama main para evitar despliegues accidentales
+    # Solo corre si el push es a la rama main
     if: github.ref == 'refs/heads/main'
 
     env:
@@ -29,12 +29,12 @@ jobs:
 
     - name: Build & Push Backend (.NET)
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/pato-back:latest -t ${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }} ./api
-        docker push ${{ secrets.DOCKER_USERNAME }}/pato-back:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }}
+        docker build -t "${{ secrets.DOCKER_USERNAME }}/pato-back:latest" -t "${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }}" ./api
+        docker push "${{ secrets.DOCKER_USERNAME }}/pato-back:latest"
+        docker push "${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }}"
 
     - name: Build & Push Frontend (Angular)
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/pato-front:latest -t ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }} -f client/Dockerfile .
-        docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }}
+        docker build -t "${{ secrets.DOCKER_USERNAME }}/pato-front:latest" -t "${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }}" -f client/Dockerfile .
+        docker push "${{ secrets.DOCKER_USERNAME }}/pato-front:latest"
+        docker push "${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }}"
