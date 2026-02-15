@@ -29,19 +29,12 @@ jobs:
 
     - name: Build & Push Backend (.NET)
       run: |
-        docker build \
-          -t ${{ secrets.DOCKER_USERNAME }}/pato-back:latest \
-          -t ${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }} \
-          ./api
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/pato-back:latest -t ${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }} ./api
         docker push ${{ secrets.DOCKER_USERNAME }}/pato-back:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/pato-back:${{ env.APP_VERSION }}
 
     - name: Build & Push Frontend (Angular)
       run: |
-        # Usamos el punto final (.) como contexto para que encuentre el nginx.conf
-        docker build \
-          -t ${{ secrets.DOCKER_USERNAME }}/pato-front:latest \
-          -t ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }} \
-          -f client/Dockerfile .
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/pato-front:latest -t ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }} -f client/Dockerfile .
         docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }}
