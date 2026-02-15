@@ -41,4 +41,4 @@ jobs:
                       -t ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }} \
                       ./client
         docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/pato-front:${{ env.APP_VERSION }} 
