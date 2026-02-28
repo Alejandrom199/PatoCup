@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { ApiResponse } from '../../models/api-response';
 import { CreateMatchDto, MatchResponseDto, RegisterResultDto, UpdateMatchDto } from '../../../data/features/tournaments/dtos/competition/match.dto';
-import { environment } from '../../../../environments/src/environments/environment';
+import { environment } from '../../../../environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })

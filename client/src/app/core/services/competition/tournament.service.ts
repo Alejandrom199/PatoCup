@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../../environments/src/environments/environment';
+
+import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 import { throwError } from 'rxjs'; // Importar throwError
 import { ApiResponse } from '../../models/api-response'; // Assuming this file exists and is correctly defined

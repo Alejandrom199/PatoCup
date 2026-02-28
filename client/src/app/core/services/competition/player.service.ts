@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '../../../../environments/src/environments/environment';
+import { environment } from '../../../../environments/environment';
+
 import { PlayerResponseDto, PlayerSelectDto, UpdatePlayerDto } from '../../../data/features/tournaments/dtos/competition/player.dto';
 import { ApiResponse } from '../../models/api-response';
 
