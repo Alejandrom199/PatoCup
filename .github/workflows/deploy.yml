@@ -52,7 +52,7 @@ jobs:
       with:
         client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_EE23E2F228BB46268E4C520D4D2278D1 }}
         tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F1806B67CFBF4B48A20131F5FB80ABB2 }}
-        subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_275560C3E08341C187A5EB13FCBECB50 }}
+        subscription-id: '15db955f-e94f-437c-917d-a3dcd8b7761b'
 
     # DEPLOYMENT TO AZURE
     - name: Deploy Backend to Azure
