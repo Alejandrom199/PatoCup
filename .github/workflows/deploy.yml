@@ -58,11 +58,11 @@ jobs:
     - name: Deploy Backend to Azure
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'api-patocup-backend-htc9hedfbjg6ewev' 
+        app-name: 'api-patocup-backend' 
         images: '${{ secrets.DOCKER_USERNAME }}/pato-back:latest'
 
     - name: Deploy Frontend to Azure
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'app-patocup-frontend-erf9dkgda4eyb7dc'
+        app-name: 'app-patocup-frontend'
         images: '${{ secrets.DOCKER_USERNAME }}/pato-front:latest'
