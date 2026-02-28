@@ -64,5 +64,5 @@ jobs:
     - name: Deploy Frontend to Azure
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'app-patocup-frontend'
+        app-name: 'app-patocup-frontend-erf9dkgda4eyb7dc'
         images: '${{ secrets.DOCKER_USERNAME }}/pato-front:latest'
