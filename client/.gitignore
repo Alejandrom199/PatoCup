@@ -1,45 +1,49 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+[Bb]in/
+[Oo]bj/
+**/[Bb]in/
+**/[Oo]bj/
+/api/**/bin/
+/api/**/obj/
+*.exe
+*.dll
+*.pdb
+*.cache
+**/*.dll
+**/*.pdb
+**/*.cache
+*.user
+*.suo
+*.sln.docstates
+.vs/
+.history/
+*.log
 
-# Node
-/node_modules
+# ==========================================
+# --- Angular / Node ---
+# ==========================================
+node_modules/
+.angular/
+dist/
+tmp/
+out-tsc/
+bazel-out/
+/.angular/cache
 npm-debug.log
 yarn-error.log
 
-# IDEs and editors
-.idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# Visual Studio Code
+# ==========================================
+# --- IDEs (VS Code, JetBrains) ---
+# ==========================================
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-!.vscode/mcp.json
-.history/*
+.idea/
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
-
-# System files
+# ==========================================
+# --- OS Files ---
+# ==========================================
 .DS_Store
 Thumbs.db
-.angular/

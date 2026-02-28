@@ -26,7 +26,7 @@ namespace PatoCup.WebAPI.Controllers
 
             if (clientIp == "::1") clientIp = "127.0.0.1";
 
-            var result = await _service.PublicSubmitPlayerAsync(dto, clientIp);
+            var result = await _service.PublicSubmitPlayer(dto, clientIp);
 
             return Ok(new Response<string>("¡Solicitud enviada con éxito! Espera a que el administrador te acepte."));
         }
@@ -37,7 +37,7 @@ namespace PatoCup.WebAPI.Controllers
             [FromQuery][Range(1, 100)] int pageSize = 10,
             [FromQuery] string? filter = null)
         {
-            var data = await _service.GetAllPlayersAsync(pageNumber, pageSize, filter ?? string.Empty);
+            var data = await _service.GetAllPlayers(pageNumber, pageSize, filter ?? string.Empty);
 
             return Ok(new Response<IEnumerable<PlayerResponseDto>>(data));
         }
@@ -55,7 +55,7 @@ namespace PatoCup.WebAPI.Controllers
             [FromRoute][Range(1, int.MaxValue)] int id,
             [FromQuery][Range(1, int.MaxValue)] int statusId)
         {
-            var success = await _service.ProcessPlayerRequestAsync(id, statusId);
+            var success = await _service.ProcessPlayerRequest(id, statusId);
 
             if (!success)
                 return NotFound(new Response<string>("No se pudo procesar la solicitud. Verifica el ID del jugador."));
@@ -70,7 +70,7 @@ namespace PatoCup.WebAPI.Controllers
             if (id != dto.Id)
                 return BadRequest(new Response<string>("El ID de la URL no coincide con el del cuerpo de la petición."));
 
-            var updated = await _service.UpdatePlayerAsync(dto);
+            var updated = await _service.UpdatePlayer(dto);
 
             if (!updated)
                 return NotFound(new Response<string>("El jugador no existe o no se pudo actualizar."));
@@ -82,7 +82,7 @@ namespace PatoCup.WebAPI.Controllers
         [AuditLog("DELETE_PLAYER")]
         public async Task<IActionResult> DeletePlayer([FromRoute][Range(1, int.MaxValue)] int id)
         {
-            var deleted = await _service.SoftDeletePlayerAsync(id);
+            var deleted = await _service.SoftDeletePlayer(id);
 
             if (!deleted)
                 return NotFound(new Response<string>("El jugador no existe o ya fue eliminado."));

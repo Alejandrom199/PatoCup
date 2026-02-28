@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Router, RouterOutlet } from '@angular/router';
 import { provideIcons, NgIcon } from '@ng-icons/core';
 import { heroUserCircleSolid } from '@ng-icons/heroicons/solid';
@@ -12,9 +13,15 @@ import { heroUserCircleSolid } from '@ng-icons/heroicons/solid';
 })
 export class AuthLayout {
 
+  private titleService = inject(Title);
   constructor(private router: Router) {
 
   }
+
+  ngOnInit() {
+    this.titleService.setTitle('PatoCup - Autenticación');
+  }
+
   goBack() {
     this.router.navigate(['/']);
   }

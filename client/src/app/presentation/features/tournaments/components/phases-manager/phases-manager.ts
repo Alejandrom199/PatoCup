@@ -2,7 +2,7 @@ import { Component, Input, inject, ChangeDetectorRef, OnInit } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { Validators } from '@angular/forms'; // Solo necesitamos Validators
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroPlus, heroPencil, heroTrash, heroChevronUp, heroArrowRightOnRectangle, heroTrophy } from '@ng-icons/heroicons/outline';
+import { heroPlus, heroPencil, heroTrash, heroChevronUp, heroArrowRightOnRectangle, heroTrophy, heroPencilSquare } from '@ng-icons/heroicons/outline';
 
 // Importamos el Dynamic Form y su Configuración
 
@@ -14,6 +14,7 @@ import { FormFieldConfig } from '../../../../../core/models/form-config';
 import { StatusModal } from "../../../../components/status-modal/status-modal";
 import { CatalogService } from '../../../../../core/services/common/catalog.service';
 import { Catalog } from '../../../../../core/models/catalog';
+import { Title } from '@angular/platform-browser';
 
 interface PhaseUI extends PhaseResponseDto {
   isExpanded?: boolean;
@@ -25,7 +26,7 @@ interface PhaseUI extends PhaseResponseDto {
   selector: 'app-phases-manager',
   standalone: true,
   imports: [CommonModule, NgIconComponent, MatchManager, DynamicForm, StatusModal],
-  viewProviders: [provideIcons({ heroTrophy,heroPlus, heroPencil, heroArrowRightOnRectangle, heroTrash, heroChevronUp })],
+  viewProviders: [provideIcons({ heroTrophy,heroPlus, heroPencilSquare, heroArrowRightOnRectangle, heroTrash, heroChevronUp })],
   templateUrl: './phases-manager.html',
 })
 export class PhasesManager implements OnInit {

@@ -3,8 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { ApiResponse } from '../../models/api-response';
 import { CreatePhaseDto, PhaseResponseDto, UpdatePhaseDto } from '../../../data/features/tournaments/dtos/competition/phase.dto';
-import { environment } from '../../../../environments/src/environments/environment.development';
-
+import { environment } from '../../../../environments/src/environments/environment';
 
 @Injectable({
   providedIn: 'root',

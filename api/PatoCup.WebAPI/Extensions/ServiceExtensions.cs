@@ -25,13 +25,19 @@ namespace PatoCup.WebAPI.Extensions
 {
     public static class ServiceExtensions
     {
+
         public static void AddApplicationServices(this IServiceCollection services)
         {
+            var allowedOrigins = new[] {
+                "http://localhost:4200",
+                "https://app-patocup-frontend-erf9dkgda4eyb7dc.westus3-01.azurewebsites.net"
+            };
+            
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAngular", policy =>
                 {
-                    policy.WithOrigins("http://localhost:4200")
+                    policy.WithOrigins(allowedOrigins)
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();

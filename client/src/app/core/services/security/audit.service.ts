@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '../../../../environments/src/environments/environment.development';
+import { environment } from '../../../../environments/src/environments/environment';
 import { ApiResponse } from '../../models/api-response';
 import { AuditLogResponseDto } from '../../../data/features/tournaments/dtos/security/audit.dto';
 

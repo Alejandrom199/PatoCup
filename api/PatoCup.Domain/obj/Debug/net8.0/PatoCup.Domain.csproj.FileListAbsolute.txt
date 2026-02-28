@@ -31,3 +31,4 @@ C:\Dev\PatoCup\api\PatoCup.Domain\obj\Debug\net8.0\PatoCup.Domain.dll
 C:\Dev\PatoCup\api\PatoCup.Domain\obj\Debug\net8.0\refint\PatoCup.Domain.dll
 C:\Dev\PatoCup\api\PatoCup.Domain\obj\Debug\net8.0\PatoCup.Domain.pdb
 C:\Dev\PatoCup\api\PatoCup.Domain\obj\Debug\net8.0\ref\PatoCup.Domain.dll
+C:\Dev\PatoCup\api\PatoCup.Domain\obj\Debug\net8.0\PatoCup.Domain.sourcelink.json

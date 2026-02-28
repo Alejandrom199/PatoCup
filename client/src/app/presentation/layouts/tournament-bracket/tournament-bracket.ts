@@ -5,6 +5,7 @@ import { NgIconComponent, provideIcons } from "@ng-icons/core";
 import { heroTrophy, heroArrowLeft, heroStar, heroInformationCircle } from '@ng-icons/heroicons/outline';
 import { TournamentService } from '../../../core/services/competition/tournament.service';
 import { interval, Subscription } from 'rxjs';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-tournament-bracket',
@@ -17,6 +18,7 @@ export class TournamentBracket implements OnInit, OnDestroy {
   private router = inject(Router);
   private tournamentService = inject(TournamentService);
   private cdr = inject(ChangeDetectorRef);
+  private titleService = inject(Title);
 
   tournament: any = null;
   isLoading = true;
@@ -27,6 +29,7 @@ export class TournamentBracket implements OnInit, OnDestroy {
   private pollingSub?: Subscription;
 
   ngOnInit() {
+    this.titleService.setTitle('PatoCup - Bracket');
     this.loadTournamentData();
     this.pollingSub = interval(10000).subscribe(() => this.fetchBracket(true));
   }

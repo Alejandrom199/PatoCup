@@ -11,6 +11,7 @@ import { Pagination } from '../../../../components/pagination/pagination';
 import { AuditService } from '../../../../../core/services/security/audit.service';
 import { AuditLogResponseDto } from '../../../../../data/features/tournaments/dtos/security/audit.dto';
 import { StatusModal } from "../../../../components/status-modal/status-modal";
+import { Title } from '@angular/platform-browser';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class AuditManager implements OnInit {
 
     private auditService = inject(AuditService);
     private cdr = inject(ChangeDetectorRef);
+    private titleService = inject(Title);
 
     logs: AuditLogResponseDto[] = [];
     isLoading = false;
@@ -49,6 +51,7 @@ export class AuditManager implements OnInit {
     selectedLog: AuditLogResponseDto | null = null;
 
     ngOnInit() {
+        this.titleService.setTitle('PatoCup - Auditoría');
         this.loadLogs();
     }
 

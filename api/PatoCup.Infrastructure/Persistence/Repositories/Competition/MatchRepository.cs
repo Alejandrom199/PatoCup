@@ -44,7 +44,7 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@Player1Id", match.Player1Id);
             parameters.Add("@Player2Id", match.Player2Id);
             parameters.Add("@MatchStateId", match.MatchStateId);
-            parameters.Add("StateId", match.StateId);
+            parameters.Add("@StateId", match.StateId);
 
             AddOutputParameters(parameters);
 

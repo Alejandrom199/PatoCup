@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from '../../components/navbar/navbar';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-main-layout',
@@ -8,4 +9,12 @@ import { Navbar } from '../../components/navbar/navbar';
   imports: [RouterOutlet, Navbar],
   templateUrl: './main-layout.html'
 })
-export class MainLayout {}
+export class MainLayout implements OnInit{
+
+  private titleService = inject(Title);
+
+  ngOnInit() {
+    this.titleService.setTitle('PatoCup - Inicio');
+  }
+
+}

@@ -10,7 +10,7 @@ import { FormFieldConfig } from '../../../../../core/models/form-config';
 import { MatchService } from '../../../../../core/services/competition/match.service';
 import { PlayerService } from '../../../../../core/services/competition/player.service';
 import { StatusModal } from "../../../../components/status-modal/status-modal";
-import { Observable } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { CatalogService } from '../../../../../core/services/common/catalog.service';
 import { Catalog } from '../../../../../core/models/catalog';
 
@@ -200,6 +200,7 @@ export class MatchManager implements OnInit {
         placeholder: 'Selecciona al primer jugador',
         validators: [Validators.required],
         icon: 'user',
+        value: Number(match.player1Id),
         options: this.playerOptions 
       } as any,
       {
@@ -209,6 +210,7 @@ export class MatchManager implements OnInit {
         placeholder: 'Selecciona al rival',
         validators: [Validators.required],
         icon: 'user',
+        value: Number(match.player2Id),
         options: this.playerOptions
       } as any,
       {
@@ -286,7 +288,6 @@ export class MatchManager implements OnInit {
   handleFormSubmit(formData: any) {
     this.isLoading = true;
 
-    // Registro de resultados (Marcador y Ganador)
     if (this.isRegisteringResult) {
       const resultDto: RegisterResultDto = {
         id: this.selectedMatchId,
@@ -307,8 +308,10 @@ export class MatchManager implements OnInit {
           }
         },
         error: (err) => {
-          this.showErrorModal('Error al registrar resultado:', err);
-        }
+          console.error('Error de parseo o red:', err);
+          this.closeModal();
+          this.loadMatches();
+    }
       });
       return;
     }
@@ -332,8 +335,8 @@ export class MatchManager implements OnInit {
       phaseId: this.phaseId,
       player1Id: Number(formData.player1Id),
       player2Id: Number(formData.player2Id),
-      matchStateId: formData.matchStateId || 1,
-      stateId: formData.generalStateId || 1
+      matchStateId: isNaN(Number(formData.matchStateId)) ? 1 : Number(formData.matchStateId),
+      stateId: isNaN(Number(formData.generalStateId)) ? 1 : Number(formData.generalStateId)
     };
 
     // Crear o Actualizar
@@ -341,24 +344,26 @@ export class MatchManager implements OnInit {
       ? this.matchService.updateMatch(dto)
       : this.matchService.createMatch(dto);
 
-    request.subscribe({
-      next: (res) => {
-        if (res.succeeded) {
-          this.closeModal();
-          this.loadMatches();
-        } 
-        else {
-          this.isLoading = false;
-          this.showErrorModal(res.message || 'No se pudo guardar la partida');
-          this.cdr.detectChanges();
-        }
-      },
-      error: (err) => {
-        this.showErrorModal('Error de conexión con el servidor');
-        this.isLoading = false;
-        this.cdr.detectChanges();
+    request.pipe(
+    finalize(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    })
+  ).subscribe({
+    next: (res) => {
+      console.log('Respuesta del servidor:', res);
+      if (res.succeeded) {
+        this.closeModal();
+        this.loadMatches();
+      } else {
+        this.showErrorModal(res.message || 'No se pudo guardar');
       }
-    });
+    },
+    error: (err) => {
+      console.error('Error en la petición:', err);
+      this.showErrorModal('Error de conexión o del servidor');
+    }
+  });
   }
 
   deleteMatch(id: number) {

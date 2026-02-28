@@ -43,3 +43,4 @@ C:\Dev\PatoCup\api\PatoCup.Application\obj\Debug\net8.0\PatoCup.Application.dll
 C:\Dev\PatoCup\api\PatoCup.Application\obj\Debug\net8.0\refint\PatoCup.Application.dll
 C:\Dev\PatoCup\api\PatoCup.Application\obj\Debug\net8.0\PatoCup.Application.pdb
 C:\Dev\PatoCup\api\PatoCup.Application\obj\Debug\net8.0\ref\PatoCup.Application.dll
+C:\Dev\PatoCup\api\PatoCup.Application\obj\Debug\net8.0\PatoCup.Application.sourcelink.json

@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://mi-api-real.com/api'
+  apiUrl: 'https://api-patocup-backend-htc9hedfbjg6ewev.westus3-01.azurewebsites.net'
 };

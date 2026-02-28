@@ -46,7 +46,7 @@ namespace PatoCup.WebAPI.Controllers
                 return NotFound(new Response<string>("No se pudo actualizar la partida. Verifica que exista."));
             }
 
-            return NoContent();
+            return Ok(new Response<bool>(true, "Partida actualizada correctamente."));
         }
 
         [HttpPut("result")]

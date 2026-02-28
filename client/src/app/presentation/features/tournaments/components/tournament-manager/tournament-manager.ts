@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, inject, OnInit, ViewChild } from "@angular/core";
 import { NgIconComponent, provideIcons } from "@ng-icons/core";
 import {
   heroSquares2x2,
@@ -23,6 +23,7 @@ import { CatalogService } from "../../../../../core/services/common/catalog.serv
 import { TournamentService } from "../../../../../core/services/competition/tournament.service";
 import { TournamentQuery, TournamentResponseDto } from "../../../../../data/features/tournaments/dtos/competition/tournament.dto";
 import { StatusService } from "../../../../../core/services/status/status.service";
+import { Title } from "@angular/platform-browser";
 
 interface TournamentUI extends TournamentResponseDto {
     isExpanded?: boolean;
@@ -60,6 +61,8 @@ export class TournamentManager implements OnInit {
     showCreateModal = false;
     currentFilter: TournamentQuery = { pageNumber: 1, pageSize: 10 };
     totalItemsFromBackend = 0;
+
+    private titleService = inject(Title);
 
     modalConfig = {
         isOpen: false,
@@ -105,6 +108,7 @@ export class TournamentManager implements OnInit {
     ) { }
 
     ngOnInit() {
+        this.titleService.setTitle('PatoCup - Torneos');
         this.loadTournamentStatuses();
         this.loadTournaments();
     }
