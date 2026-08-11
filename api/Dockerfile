@@ -50,25 +50,21 @@ WORKDIR /app
 COPY --from=build --chown=app:app /app/publish .
 
 # ── Variables de entorno de runtime ──────────────────────────────────────────
-# REGLA CRÍTICA: nunca hardcodear secretos acá. ENV queda visible con
-# 'docker inspect' -- todo lo sensible se deja vacío y se inyecta en Railway
-# como variable de entorno del servicio. ASP.NET Core mapea 'Seccion__Clave'
-# a 'Seccion:Clave' de appsettings.json automáticamente.
+# Solo lo no sensible se declara acá (Docker linter marca como antipatrón usar
+# ENV para nombres que suenan a secreto, aunque el valor esté vacío). Todo lo
+# sensible (ConnectionStrings__DefaultConnection, Jwt__Key,
+# AppSettings__FrontendUrl) se configura como variable de entorno del servicio
+# directamente en el dashboard de Railway -- nunca en este archivo. ASP.NET
+# Core mapea 'Seccion__Clave' a 'Seccion:Clave' de appsettings.json solo.
 ENV \
     ASPNETCORE_ENVIRONMENT=Production \
-    ASPNETCORE_FORWARDEDHEADERS_ENABLED=true \
-    \
-    # ── Base de datos (Supabase) — INYECTAR en Railway ────────────────────────
-    ConnectionStrings__DefaultConnection="" \
-    \
-    # ── JWT — INYECTAR en Railway ─────────────────────────────────────────────
-    Jwt__Key="" \
-    Jwt__Issuer="PatoCupAPI" \
-    Jwt__Audience="PatoCupFrontend" \
-    \
-    # ── CORS — URL del frontend en Netlify — INYECTAR en Railway ──────────────
-    AppSettings__FrontendUrl=""
+    ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
 
 USER app
 
-ENTRYPOINT ["dotnet", "PatoCup.WebAPI.dll"]
+# Railway asigna el puerto público vía la variable de entorno PORT en runtime
+# (no en build time, por eso no puede ir en ASPNETCORE_URLS como ENV fijo).
+# Se usa /bin/sh -c + exec para poder expandir $PORT al arrancar, sin perder
+# el beneficio de que dotnet sea PID 1 (exec reemplaza el proceso del shell
+# en vez de crear un hijo, así que SIGTERM sigue llegando directo a .NET).
+ENTRYPOINT ["/bin/sh", "-c", "exec dotnet PatoCup.WebAPI.dll --urls http://+:${PORT:-8080}"]
