@@ -1,12 +1,7 @@
-﻿using Dapper;
+using Dapper;
 using PatoCup.Domain.Entities.Security;
 using PatoCup.Domain.Interfaces.Repositories.Security;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PatoCup.Infrastructure.Persistence.Repositories.Security
 {
@@ -27,11 +22,9 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Security
             parameters.Add("@UserId", userId);
 
             return await connection.QueryAsync<Menu>(
-                "[Security].[sp_Security_GetMenuByUserId]",
+                "SELECT * FROM security.fn_security_get_menu_by_user_id(@UserId)",
                 parameters,
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.Text);
         }
-
-
     }
 }

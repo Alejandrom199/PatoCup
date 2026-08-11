@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using PatoCup.Application.Exceptions;
 using PatoCup.Domain.Entities.Competition;
 using PatoCup.Domain.Interfaces.Repositories.Competition;
@@ -21,18 +21,15 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@GameId", phase.GameId);
             parameters.Add("@RegistrationIp", phase.RegistrationIp);
 
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync(
-                "[Competition].[sp_Players_PublicSubmit]",
-                parameters, 
-                commandType: CommandType.StoredProcedure
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_players_public_submit(@Nickname, @GameId, @RegistrationIp)",
+                parameters,
+                commandType: CommandType.Text
             );
 
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
-
         }
 
         public async Task<IEnumerable<Player>> GetAllPlayersAsync(int pageNumber, int pageSize, string filter)
@@ -45,9 +42,9 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@PageSize", pageSize);
 
             return await connection.QueryAsync<Player>(
-                "[Competition].[sp_Players_AdminList]",
-                parameters, 
-                commandType: CommandType.StoredProcedure
+                "SELECT * FROM competition.fn_players_admin_list(@FilterText, @PageNumber, @PageSize)",
+                parameters,
+                commandType: CommandType.Text
             );
         }
 
@@ -59,15 +56,13 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@PlayerId", playerId);
             parameters.Add("@NewPlayerStateId", newPlayerStateId);
 
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync(
-                "[Competition].[sp_Players_ProcessRequest]",
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_players_process_request(@PlayerId, @NewPlayerStateId)",
                 parameters,
-                commandType: CommandType.StoredProcedure
+                commandType: CommandType.Text
             );
 
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
@@ -82,15 +77,13 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@GameId", phase.GameId);
             parameters.Add("@StateId", phase.StateId);
 
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync(
-                "[Competition].[sp_Players_Update]",
-                parameters, 
-                commandType: CommandType.StoredProcedure
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_players_update(@Id, @Nickname, @GameId, @StateId)",
+                parameters,
+                commandType: CommandType.Text
             );
 
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
@@ -99,18 +92,13 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
         {
             using var connection = _context.CreateConnection();
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@Id", id);
-
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync(
-                "[Competition].[sp_Players_SoftDelete]",
-                parameters, 
-                commandType: CommandType.StoredProcedure
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_players_soft_delete(@Id)",
+                new { Id = id },
+                commandType: CommandType.Text
             );
 
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
@@ -120,25 +108,16 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             using var connection = _context.CreateConnection();
 
             return await connection.QueryAsync<Player>(
-                "[Competition].[sp_Players_GetSelect]",
-                commandType: CommandType.StoredProcedure
+                "SELECT * FROM competition.fn_players_get_select()",
+                commandType: CommandType.Text
             );
         }
 
-        private void AddOutputParameters(DynamicParameters parameters)
+        private static void ValidateResponse(ActionResult? result)
         {
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
-        }
-
-        private void ValidateResponse(DynamicParameters parameters)
-        {
-            int errorCode = parameters.Get<int>("ErrorCode");
-            string errorMessage = parameters.Get<string>("ErrorMessage");
-
-            if (errorCode != 0)
+            if (result is null || result.ErrorCode != 0)
             {
-                throw new ApiException(errorMessage);
+                throw new ApiException(result?.ErrorMessage ?? "Error desconocido.");
             }
         }
     }

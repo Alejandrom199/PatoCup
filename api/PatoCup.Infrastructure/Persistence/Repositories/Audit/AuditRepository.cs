@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using PatoCup.Domain.Entities.Audit;
 using PatoCup.Domain.Interfaces.Repositories.Audit;
 using System.Data;
@@ -22,9 +22,9 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Audit
             parameters.Add("@IpAddress", audit.IpAddress);
 
             await connection.ExecuteAsync(
-                "[Audit].[sp_SystemLogs_Create]",
+                "SELECT audit.fn_system_logs_create(@ActionType, @Message, @IpAddress, @UserId)",
                 parameters,
-                commandType: CommandType.StoredProcedure
+                commandType: CommandType.Text
             );
         }
 
@@ -37,9 +37,9 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Audit
             parameters.Add("@PageSize", pageSize);
 
             return await connection.QueryAsync<AuditLog>(
-                "[Audit].[sp_SystemLogs_GetAll]",
+                "SELECT * FROM audit.fn_system_logs_get_all(@PageNumber, @PageSize)",
                 parameters,
-                commandType: CommandType.StoredProcedure
+                commandType: CommandType.Text
             );
         }
     }

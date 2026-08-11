@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Npgsql;
 using Microsoft.Extensions.Configuration;
 using System.Data;
 
@@ -14,6 +14,6 @@ namespace PatoCup.Infrastructure.Persistence
         }
 
         public IDbConnection CreateConnection()
-            => new SqlConnection(_connectionString);
+            => new NpgsqlConnection(_connectionString);
     }
 }

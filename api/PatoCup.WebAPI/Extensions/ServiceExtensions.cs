@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PatoCup.Application.Interfaces.Services.Audit;
 using PatoCup.Application.Interfaces.Services.Common;
@@ -26,18 +27,22 @@ namespace PatoCup.WebAPI.Extensions
     public static class ServiceExtensions
     {
 
-        public static void AddApplicationServices(this IServiceCollection services)
+        public static void AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var allowedOrigins = new[] {
-                "http://localhost:4200",
-                "https://app-patocup-frontend-erf9dkgda4eyb7dc.westus3-01.azurewebsites.net"
-            };
-            
+            // "http://localhost:4200" siempre permitido para desarrollo local.
+            // La URL real de producción (Netlify) se inyecta por variable de entorno
+            // AppSettings__FrontendUrl -- nunca hardcodeada en el código.
+            var frontendUrl = configuration["AppSettings:FrontendUrl"];
+
+            var allowedOrigins = new[] { "http://localhost:4200", frontendUrl }
+                .Where(origin => !string.IsNullOrWhiteSpace(origin))
+                .ToArray();
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAngular", policy =>
                 {
-                    policy.WithOrigins(allowedOrigins)
+                    policy.WithOrigins(allowedOrigins!)
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials();

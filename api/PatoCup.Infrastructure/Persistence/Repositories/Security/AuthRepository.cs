@@ -1,48 +1,45 @@
-﻿
 using Dapper;
-using Microsoft.Data.SqlClient;
+using PatoCup.Application.Exceptions;
 using PatoCup.Domain.Entities.Security;
-using System.Data;
-using System.Threading.Tasks;
-using System;
 using PatoCup.Domain.Interfaces.Repositories.Security;
+using System.Data;
 
 namespace PatoCup.Infrastructure.Persistence.Repositories.Security
+{
+    public class AuthRepository : IAuthRepository
     {
-        public class AuthRepository : IAuthRepository
-        {
-            private readonly DapperContext _context;
+        private readonly DapperContext _context;
 
-            public AuthRepository(DapperContext context)
-            {
-                _context = context;
-            }
+        public AuthRepository(DapperContext context)
+        {
+            _context = context;
+        }
+
+        // fn_auth_login devuelve, en una sola fila, los datos del usuario Y el
+        // error_code/error_message de validación (login inexistente / inactivo).
+        // LoginResult extiende User para poder mapear ambos con una sola query.
+        private sealed class LoginResult : User
+        {
+            public int ErrorCode { get; set; }
+            public string ErrorMessage { get; set; } = string.Empty;
+        }
 
         public async Task<User?> LoginAsync(string username)
         {
             using var connection = _context.CreateConnection();
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@Username", username);
-
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
-
-            var user = await connection.QueryFirstOrDefaultAsync<User>(
-                "[Security].[sp_Auth_Login]",
-                parameters,
-                commandType: CommandType.StoredProcedure
+            var result = await connection.QueryFirstOrDefaultAsync<LoginResult>(
+                "SELECT * FROM security.fn_auth_login(@Username)",
+                new { Username = username },
+                commandType: CommandType.Text
             );
 
-            int errorCode = parameters.Get<int>("@ErrorCode");
-            string errorMessage = parameters.Get<string>("@ErrorMessage");
-
-            if (errorCode != 0)
+            if (result is null || result.ErrorCode != 0)
             {
-                throw new Exception(errorMessage);
+                throw new ApiException(result?.ErrorMessage ?? "Error desconocido.");
             }
 
-            return user;
+            return result;
         }
 
         public async Task<bool> ChangePassword(int id, string newPassword)
@@ -53,17 +50,13 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Security
             parameters.Add("@Id", id);
             parameters.Add("@NewPassword", newPassword);
 
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM security.fn_users_change_password(@Id, @NewPassword)",
+                parameters, commandType: CommandType.Text);
 
-            await connection.ExecuteAsync("[Security].[sp_Users_ChangePassword]", parameters, commandType: CommandType.StoredProcedure);
-
-            int errorCode = parameters.Get<int>("@ErrorCode");
-            string errorMessage = parameters.Get<string>("@ErrorMessage");
-
-            if (errorCode != 0)
+            if (result is null || result.ErrorCode != 0)
             {
-                throw new Exception(errorMessage);
+                throw new ApiException(result?.ErrorMessage ?? "Error desconocido.");
             }
 
             return true;

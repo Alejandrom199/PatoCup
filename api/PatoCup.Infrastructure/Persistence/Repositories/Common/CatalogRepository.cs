@@ -1,12 +1,7 @@
-﻿using Dapper;
+using Dapper;
 using PatoCup.Domain.Entities.Common;
 using PatoCup.Domain.Interfaces.Repositories.Common;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PatoCup.Infrastructure.Persistence.Repositories.Common
 {
@@ -21,8 +16,8 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Common
             using var connection = _context.CreateConnection();
 
             return await connection.QueryAsync<Catalog>(
-                "[Security].[sp_GeneralStatus_GetAll]",
-                commandType: CommandType.StoredProcedure
+                "SELECT * FROM security.fn_general_status_get_all()",
+                commandType: CommandType.Text
             );
         }
 
@@ -31,8 +26,8 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Common
             using var connection = _context.CreateConnection();
 
             return await connection.QueryAsync<Catalog>(
-                "[Competition].[sp_PlayerStatus_GetAll]",
-                commandType: CommandType.StoredProcedure
+                "SELECT * FROM competition.fn_player_status_get_all()",
+                commandType: CommandType.Text
             );
         }
 
@@ -41,8 +36,8 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Common
             using var connection = _context.CreateConnection();
 
             return await connection.QueryAsync<Catalog>(
-                "[Competition].[sp_TournamentStatus_GetAll]",
-                commandType: CommandType.StoredProcedure
+                "SELECT * FROM competition.fn_tournament_status_get_all()",
+                commandType: CommandType.Text
             );
         }
 
@@ -51,8 +46,8 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Common
             using var connection = _context.CreateConnection();
 
             return await connection.QueryAsync<Catalog>(
-                "[Competition].[sp_PhaseStatus_GetAll]",
-                commandType: CommandType.StoredProcedure
+                "SELECT * FROM competition.fn_phase_status_get_all()",
+                commandType: CommandType.Text
             );
         }
 
@@ -61,8 +56,8 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Common
             using var connection = _context.CreateConnection();
 
             return await connection.QueryAsync<Catalog>(
-                "[Competition].[sp_MatchStatus_GetAll]",
-                commandType: CommandType.StoredProcedure
+                "SELECT * FROM competition.fn_match_status_get_all()",
+                commandType: CommandType.Text
             );
         }
 

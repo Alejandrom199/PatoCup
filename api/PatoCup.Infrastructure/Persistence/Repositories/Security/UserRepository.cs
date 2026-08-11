@@ -1,13 +1,8 @@
-﻿using Dapper;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
+using Dapper;
 using PatoCup.Application.Exceptions;
-using PatoCup.Domain.Entities.Competition;
 using PatoCup.Domain.Entities.Security;
 using PatoCup.Domain.Interfaces.Repositories.Security;
-using System;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace PatoCup.Infrastructure.Persistence.Repositories.Security
 {
@@ -31,21 +26,13 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Security
             parameters.Add("@Email", user.Email);
             parameters.Add("@PhotoUrl", user.PhotoUrl);
 
-            parameters.Add("@NewId", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM security.fn_users_create(@RoleId, @Username, @Password, @Email, @PhotoUrl)",
+                parameters, commandType: CommandType.Text);
 
-            await connection.ExecuteAsync("[Security].[sp_Users_Create]", parameters, commandType: CommandType.StoredProcedure);
+            ValidateResponse(result);
 
-            int errorCode = parameters.Get<int>("@ErrorCode");
-            string errorMessage = parameters.Get<string>("@ErrorMessage");
-
-            if (errorCode != 0)
-            {
-                throw new Exception(errorMessage);
-            }
-
-            return parameters.Get<int>("@NewId");
+            return result!.NewId;
         }
 
         public async Task<IEnumerable<User>> GetAllAsync(int pageNumber, int pageSize, string? filterUsername, int? filterRoleId)
@@ -59,9 +46,9 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Security
             parameters.Add("@FilterRoleId", filterRoleId);
 
             return await connection.QueryAsync<User>(
-                "[Security].[sp_Users_GetAll]", 
-                parameters, 
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM security.fn_users_get_all(@PageNumber, @PageSize, @FilterUsername, @FilterRoleId)",
+                parameters,
+                commandType: CommandType.Text);
         }
 
         public async Task<User?> GetByIdAsync(int id)
@@ -69,30 +56,20 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Security
             using var connection = _context.CreateConnection();
 
             return await connection.QueryFirstOrDefaultAsync<User>(
-                "[Competition].[sp_Users_GetById]",
+                "SELECT * FROM security.fn_users_get_by_id(@Id)",
                 new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.Text);
         }
 
         public async Task<bool> ReactivateAsync(int id)
         {
             using var connection = _context.CreateConnection();
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@Id", id);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM security.fn_users_reactivate(@Id)",
+                new { Id = id }, commandType: CommandType.Text);
 
-            await connection.ExecuteAsync("[Competition].[sp_Users_Reactivate]",
-                parameters, commandType: CommandType.StoredProcedure);
-
-            int errorCode = parameters.Get<int>("ErrorCode");
-            string errorMessage = parameters.Get<string>("ErrorMessage");
-
-            if (errorCode != 0)
-            {
-                throw new ApiException(errorMessage);
-            }
+            ValidateResponse(result);
 
             return true;
         }
@@ -101,21 +78,11 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Security
         {
             using var connection = _context.CreateConnection();
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@Id", id);
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM security.fn_users_soft_delete(@Id)",
+                new { Id = id }, commandType: CommandType.Text);
 
-            await connection.ExecuteAsync("[Competition].[sp_Users_SoftDelete]",
-                parameters, commandType: CommandType.StoredProcedure);
-
-            int errorCode = parameters.Get<int>("ErrorCode");
-            string errorMessage = parameters.Get<string>("ErrorMessage");
-
-            if (errorCode != 0)
-            {
-                throw new ApiException(errorMessage);
-            }
+            ValidateResponse(result);
 
             return true;
         }
@@ -128,25 +95,25 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Security
             parameters.Add("@Id", user.Id);
             parameters.Add("@RoleId", user.RoleId);
             parameters.Add("@Username", user.Username);
-            parameters.Add("@Password", user.Password);
             parameters.Add("@Email", user.Email);
             parameters.Add("@PhotoUrl", user.PhotoUrl);
             parameters.Add("@StateId", user.StateId);
 
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM security.fn_users_update(@Id, @RoleId, @Username, @Email, @PhotoUrl, @StateId)",
+                parameters, commandType: CommandType.Text);
 
-            await connection.ExecuteAsync("[Security].[sp_Users_Update]", parameters, commandType: CommandType.StoredProcedure);
-
-            int errorCode = parameters.Get<int>("@ErrorCode");
-            string errorMessage = parameters.Get<string>("@ErrorMessage");
-
-            if (errorCode != 0)
-            {
-                throw new Exception(errorMessage);
-            }
+            ValidateResponse(result);
 
             return true;
+        }
+
+        private static void ValidateResponse(ActionResult? result)
+        {
+            if (result is null || result.ErrorCode != 0)
+            {
+                throw new ApiException(result?.ErrorMessage ?? "Error desconocido.");
+            }
         }
     }
 }

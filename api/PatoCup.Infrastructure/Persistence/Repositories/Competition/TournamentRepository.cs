@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using PatoCup.Application.DTOs.Competition;
 using PatoCup.Application.Exceptions;
 using PatoCup.Domain.Entities.Competition;
@@ -29,9 +29,9 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@TournamentStateId", NohaveTournament ? null : tournament.TournamentStateId);
 
             return await connection.QueryAsync<Tournament>(
-                "[Competition].[sp_Tournaments_GetAll]",
+                "SELECT * FROM competition.fn_tournaments_get_all(@PageNumber, @PageSize, @Name, @Description, @StartDate, @EndDate, @TournamentStateId)",
                 parameters,
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.Text);
         }
 
         public async Task<Tournament?> GetTournamentByIdAsync(int id)
@@ -39,11 +39,11 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             using var connection = _context.CreateConnection();
 
             return await connection.QueryFirstOrDefaultAsync<Tournament>(
-                "[Competition].[sp_Tournaments_GetById]",
+                "SELECT * FROM competition.fn_tournaments_get_by_id(@Id)",
                 new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                commandType: CommandType.Text);
         }
-        
+
         public async Task<int> CreateTournamentAsync(Tournament tournament)
         {
             using var connection = _context.CreateConnection();
@@ -54,16 +54,13 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@StartDate", tournament.StartDate);
             parameters.Add("@EndDate", tournament.EndDate);
 
-            AddOutputParameters(parameters);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_tournaments_create(@Name, @Description, @StartDate, @EndDate)",
+                parameters, commandType: CommandType.Text);
 
-            parameters.Add("@NewId", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            ValidateResponse(result);
 
-            await connection.ExecuteAsync("[Competition].[sp_Tournaments_Create]",
-                parameters, commandType: CommandType.StoredProcedure);
-
-            ValidateResponse(parameters);
-
-            return parameters.Get<int>("NewId");
+            return result!.NewId;
         }
 
         public async Task<bool> UpdateTournamentAsync(Tournament tournament)
@@ -79,29 +76,24 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@TournamentStateId", tournament.TournamentStateId);
             parameters.Add("@StateId", tournament.StateId);
 
-            AddOutputParameters(parameters);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_tournaments_update(@Id, @Name, @Description, @StartDate, @EndDate, @TournamentStateId, @StateId)",
+                parameters, commandType: CommandType.Text);
 
-            await connection.ExecuteAsync("[Competition].[sp_Tournaments_Update]",
-                parameters, commandType: CommandType.StoredProcedure);
-
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
-        
+
         public async Task<bool> SoftDeleteTournamentAsync(int id)
         {
             using var connection = _context.CreateConnection();
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@Id", id);
-            
-            AddOutputParameters(parameters);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_tournaments_soft_delete(@Id)",
+                new { Id = id }, commandType: CommandType.Text);
 
-            await connection.ExecuteAsync("[Competition].[sp_Tournaments_SoftDelete]",
-                parameters, commandType: CommandType.StoredProcedure);
-
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
@@ -110,15 +102,11 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
         {
             using var connection = _context.CreateConnection();
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@Id", id);
-            
-            AddOutputParameters(parameters);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_tournaments_reactivate(@Id)",
+                new { Id = id }, commandType: CommandType.Text);
 
-            await connection.ExecuteAsync("[Competition].[sp_Tournaments_Reactivate]",
-                parameters, commandType: CommandType.StoredProcedure);
-
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
@@ -127,15 +115,11 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
         {
             using var connection = _context.CreateConnection();
 
-            var parameters = new DynamicParameters();
-            parameters.Add("@Id", id);
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_tournaments_set_public(@Id)",
+                new { Id = id }, commandType: CommandType.Text);
 
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync("[Competition].[sp_Tournaments_SetPublic]",
-                parameters, commandType: CommandType.StoredProcedure);
-
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
@@ -145,8 +129,8 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             using var connection = _context.CreateConnection();
 
             return await connection.QueryFirstOrDefaultAsync<Tournament>(
-                "[Competition].[sp_Tournaments_GetPublicActive]",
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM competition.fn_tournaments_get_public_active()",
+                commandType: CommandType.Text);
         }
 
         public async Task<Tournament?> GetPublicBracketAsync()
@@ -155,8 +139,20 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             var tournamentDict = new Dictionary<int, Tournament>();
             var phaseDict = new Dictionary<int, Phase>();
 
+            // Postgres exige nombres de columna únicos en RETURNS TABLE, así que la función
+            // devuelve columnas con prefijo (tournament_id, phase_id, match_id...). Acá se
+            // re-alias a "Id"/"Name" repetidos para reconstruir el mismo truco de splitOn
+            // que usaba el SP de SQL Server.
+            const string sql = @"
+                SELECT
+                    tournament_id AS ""Id"", tournament_name AS ""Name"",
+                    phase_id AS ""Id"", phase_name AS ""Name"", sequence AS ""Sequence"", is_final AS ""IsFinal"",
+                    match_id AS ""Id"", player1_name AS ""Player1Name"", player2_name AS ""Player2Name"",
+                    score_player1 AS ""ScorePlayer1"", score_player2 AS ""ScorePlayer2"", match_phase_name AS ""PhaseName""
+                FROM competition.fn_tournaments_get_public_bracket()";
+
             await connection.QueryAsync<Tournament, Phase, Match, Tournament>(
-                "[Competition].[sp_Tournaments_GetPublicBracket]",
+                sql,
                 (t, p, m) =>
                 {
                     if (!tournamentDict.TryGetValue(t.Id, out var tournamentEntry))
@@ -187,26 +183,17 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
                     return tournamentEntry;
                 },
                 splitOn: "Id,Id",
-                commandType: CommandType.StoredProcedure
+                commandType: CommandType.Text
             );
 
             return tournamentDict.Values.FirstOrDefault();
         }
 
-        private void AddOutputParameters(DynamicParameters parameters)
+        private static void ValidateResponse(ActionResult? result)
         {
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
-        }
-
-        private void ValidateResponse(DynamicParameters parameters)
-        {
-            int errorCode = parameters.Get<int>("ErrorCode");
-            string errorMessage = parameters.Get<string>("ErrorMessage");
-
-            if (errorCode != 0)
+            if (result is null || result.ErrorCode != 0)
             {
-                throw new ApiException(errorMessage);
+                throw new ApiException(result?.ErrorMessage ?? "Error desconocido.");
             }
         }
     }

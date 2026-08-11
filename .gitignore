@@ -5,14 +5,18 @@
 *.suo
 
 # Backend (api)
-api/[Bb]in/
-api/[Oo]bj/
-api/appsettings.Development.json
+**/[Bb]in/
+**/[Oo]bj/
+**/appsettings.Development.json
+**/appsettings.Production.json
 
 # Frontend (client)
 client/node_modules/
 client/dist/
 client/.angular/
+
+# Secretos locales (usar .env.example como plantilla)
+.env
 
 # Archivos del Sistema
 .DS_Store

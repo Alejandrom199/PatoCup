@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using PatoCup.Application.Exceptions;
 using PatoCup.Domain.Entities.Competition;
 using PatoCup.Domain.Interfaces.Repositories.Competition;
@@ -21,19 +21,15 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@Player1Id", match.Player1Id);
             parameters.Add("@Player2Id", match.Player2Id);
 
-            parameters.Add("@NewId", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync(
-                "[Competition].[sp_Matches_Create]",
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_matches_create(@PhaseId, @Player1Id, @Player2Id)",
                 parameters,
-                commandType: CommandType.StoredProcedure
+                commandType: CommandType.Text
             );
 
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
-            return parameters.Get<int>("@NewId");
+            return result!.NewId;
         }
 
         public async Task<bool> UpdateMatchAsync(Match match)
@@ -46,15 +42,13 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@MatchStateId", match.MatchStateId);
             parameters.Add("@StateId", match.StateId);
 
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync(
-                "[Competition].[sp_Matches_Update]",
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_matches_update(@Id, @Player1Id, @Player2Id, @MatchStateId, @StateId)",
                 parameters,
-                commandType: CommandType.StoredProcedure
+                commandType: CommandType.Text
             );
 
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
@@ -69,15 +63,13 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@ScorePlayer2", match.ScorePlayer2);
             parameters.Add("@WinnerId", match.WinnerId);
 
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync(
-                "[Competition].[sp_Matches_RegisterResult]",
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_matches_register_result(@Id, @ScorePlayer1, @ScorePlayer2, @WinnerId)",
                 parameters,
-                commandType: CommandType.StoredProcedure
+                commandType: CommandType.Text
             );
 
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
@@ -90,46 +82,32 @@ namespace PatoCup.Infrastructure.Persistence.Repositories.Competition
             parameters.Add("@PhaseId", phaseId);
 
             return await connection.QueryAsync<Match>(
-                "[Competition].[sp_Matches_GetByPhaseId]",
+                "SELECT * FROM competition.fn_matches_get_by_phase_id(@PhaseId)",
                 parameters,
-                commandType: CommandType.StoredProcedure
+                commandType: CommandType.Text
             );
         }
 
         public async Task<bool> SoftDeleteMatchAsync(int id)
         {
             using var connection = _context.CreateConnection();
-            var parameters = new DynamicParameters();
 
-            parameters.Add("@Id", id);
-
-            AddOutputParameters(parameters);
-
-            await connection.ExecuteAsync(
-                "[Competition].[sp_Matches_SoftDelete]",
-                parameters,
-                commandType: CommandType.StoredProcedure
+            var result = await connection.QueryFirstOrDefaultAsync<ActionResult>(
+                "SELECT * FROM competition.fn_matches_soft_delete(@Id)",
+                new { Id = id },
+                commandType: CommandType.Text
             );
 
-            ValidateResponse(parameters);
+            ValidateResponse(result);
 
             return true;
         }
 
-        private void AddOutputParameters(DynamicParameters parameters)
+        private static void ValidateResponse(ActionResult? result)
         {
-            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            parameters.Add("@ErrorMessage", dbType: DbType.String, size: 200, direction: ParameterDirection.Output);
-        }
-
-        private void ValidateResponse(DynamicParameters parameters)
-        {
-            int errorCode = parameters.Get<int>("ErrorCode");
-            string errorMessage = parameters.Get<string>("ErrorMessage");
-
-            if (errorCode != 0)
+            if (result is null || result.ErrorCode != 0)
             {
-                throw new ApiException(errorMessage);
+                throw new ApiException(result?.ErrorMessage ?? "Error desconocido.");
             }
         }
     }
