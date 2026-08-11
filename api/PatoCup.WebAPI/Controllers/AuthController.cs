@@ -36,11 +36,15 @@ namespace PatoCup.WebAPI.Controllers
             }
 
             // Configuración de la Cookie
+            // SameSite=None (con Secure=true, requisito del navegador para None) porque
+            // frontend (Netlify) y backend (Railway) son dominios distintos -- con
+            // SameSite=Strict el navegador acepta la cookie en el login pero nunca la
+            // reenvía en peticiones cross-site posteriores, rompiendo la sesión.
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddHours(1)
             };
 
