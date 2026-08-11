@@ -75,12 +75,14 @@ funciones más adelante:
    visibles en todo el cuerpo de la función.** Como muchas columnas de retorno
    se llaman igual que columnas reales de las tablas (`id`, `username`,
    `state_id`...), cualquier referencia sin calificar como
-   `WHERE username = p_username` queda ambigua. Se resolvió una vez para
-   siempre con `ALTER DATABASE postgres SET plpgsql.variable_conflict =
-   use_column;` al inicio de `001_schema.sql` (le dice a Postgres que ante esa
-   ambigüedad gane siempre la columna real de la tabla). **Importante:** esto
-   solo aplica a conexiones nuevas — si estás con una sesión de `psql` ya
-   abierta desde antes de correr el script, reconéctate.
+   `WHERE username = p_username` queda ambigua. La solución "de una sola vez"
+   sería `ALTER DATABASE postgres SET plpgsql.variable_conflict = use_column;`,
+   pero en Supabase managed el rol de la API de gestión no tiene privilegios
+   de superusuario para eso (`permission denied to set parameter`). En su
+   lugar, cada función `LANGUAGE plpgsql` arranca con el pragma
+   `#variable_conflict use_column` como primera línea del cuerpo — no requiere
+   privilegios especiales y tiene el mismo efecto, solo que hay que
+   acordarse de ponerlo en cada función nueva.
 
 3. **`CommandType.StoredProcedure` de Npgsql llama a la función con notación
    de parámetros con nombre** (`fn(nombre_param => valor)`), usando como
@@ -117,3 +119,20 @@ contraseña completa de Postgres (no con la `anon key` pública) y las tablas no
 están en el schema `public` expuesto por la API REST automática de Supabase —
 pero sigue siendo la recomendación estándar de Supabase activarlo. El SQL de
 remediación está disponible si se decide aplicarlo más adelante.
+
+## Railway: usar el Session pooler, no el Transaction pooler
+
+Verificado en despliegue real: desde Railway, el **Transaction pooler**
+(puerto `6543`) de Supabase se queda colgado indefinidamente al conectar —
+sin error, sin timeout explícito, sin ninguna traza en los logs de Postgres
+de Supabase (la conexión nunca llega a establecerse). El mismo host en el
+puerto del **Session pooler** (`5432`) conecta al instante. Verificado
+también que las credenciales y el host en sí eran correctos (`psql` desde
+una red normal conecta sin problemas a ambos puertos) — el problema es
+específico de la ruta de red entre Railway y el Transaction pooler.
+
+No quedó claro si es un problema puntual de esa red de Railway en ese
+momento o algo más general del Transaction pooler visto desde plataformas
+tipo Railway. Si vuelves a montar esto (u otra plataforma similar) y ves
+timeouts de conexión sin ningún error del lado de la app, prueba cambiar de
+Transaction pooler a Session pooler antes de asumir un bug de código.
